@@ -2,10 +2,26 @@
 
 Soroban (Rust) smart contract for **Revora** revenue-share offerings on Stellar. An issuer registers an offering for a token, reports and deposits periodic revenue in a payment asset, assigns holder shares, and holders claim their portion. The contract also provides compliance and safety controls (blacklist/whitelist, jurisdiction gating, freezes, disputes, multisig/governance) and event streams for off-chain indexers.
 
-> **Deployment status:** this repository contains source code only. It makes no claim that the contract is deployed on any network.
+> **Deployment status:** the standalone revenue-deposit contract (`src/revenue_deposit_contract.rs`) is deployed on **Stellar testnet** (see below). The full `RevoraRevenueShare` contract in `src/lib.rs` is **not** deployed: it compiles to about 412 KB, above Stellar's 128 KiB contract-size limit. Nothing is deployed on mainnet.
 
 - Backend: [RevoraOrg/Revora-Backend](https://github.com/RevoraOrg/Revora-Backend)
 - Frontend: [RevoraOrg/Revora-Frontend](https://github.com/RevoraOrg/Revora-Frontend)
+
+## Testnet deployment
+
+| | |
+| --- | --- |
+| Network | Stellar **testnet** (not mainnet, no real funds) |
+| Contract | Revenue-deposit contract (`src/revenue_deposit_contract.rs`) |
+| Contract ID | `CABIJLQV4TKBHMETNIISV4OT76EDR5WXCZVJJLXHA6AEIII2JVYAHP2I` |
+| Explorer | [Stellar Lab](https://lab.stellar.org/r/testnet/contract/CABIJLQV4TKBHMETNIISV4OT76EDR5WXCZVJJLXHA6AEIII2JVYAHP2I) · [stellar.expert](https://stellar.expert/explorer/testnet/contract/CABIJLQV4TKBHMETNIISV4OT76EDR5WXCZVJJLXHA6AEIII2JVYAHP2I) |
+| Payment token | Native XLM Stellar Asset Contract on testnet (`CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`) |
+| Admin | `GBFYPMZJKOOAQ7UBBBRIJHYKZ4DQSS7EW7EYCZDU767E7SFE3RFF3JJJ` (throwaway testnet key) |
+| State | Initialised once; a second `initialize` is rejected |
+
+Build notes: the file in this repo does not compile as shipped. It needs `#![no_std]`, event topics passed as tuples (`publish((symbol_short!("allow_add"),), ..)`), and event symbols of at most 9 characters, so the deployed build used `allow_add` and `allow_rm`. Build with `cargo build --release --target wasm32-unknown-unknown` using `soroban-sdk 21.7.7`, then `stellar contract optimize` (about 18 KB).
+
+Live app: see the [Revora-Frontend](https://github.com/RevoraOrg/Revora-Frontend) repo for the website link.
 
 ## Security notice: testnet mode
 
